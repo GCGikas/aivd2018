@@ -59,32 +59,33 @@ def getCoordinateY():
     return 0
     #insert code to receive Lora coordinates from other Pi.
 
-ser = serial.Serial("/dev/ttyACM0",9600)
-ser.flushInput()
+#ser = serial.Serial("/dev/ttyACM0",9600)
+#ser.flushInput()
 
 while complete == 0:
     
-    angleCar = motion.heading()
     findAngles()
     
     if angleTarget - angleCar > 0:
         while fabs(angleTarget - angleCar) > 5:
-            print("Rotating Right")
+            print("Rotating Right by " + fabs(angleTarget - angleCar) + " degrees.")
             #Implement right rotation code here
-            ser.write("right")
+            #ser.write("right")
             findAngles()
     elif angleTarget - angleCar < 0:
         while fabs(angleTarget - angleCar) > 5:
-            print("Rotating Left")
+            print("Rotating Left by " + fabs(angleTarget-angleCar) + " degrees.")
             #Implement left rotation code here
-            ser.write("left")
+            #ser.write("left")
             findAngles()
     carX = getCoordinateX()
     carY = getCoordinateY()
+    vectorX = destX - carX
+    vectorY = destY - carY
     distance = hypot(vectorX, vectorY) * 111699
     if distance > 0.5:
-        print("Moving Forward")
+        print("Moving Forward by " + distance + " meters.")
         #Implement forward movement for small duration
-        ser.write("forward")
+        #ser.write("forward")
     else:
         complete = 1
