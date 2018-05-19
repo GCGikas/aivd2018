@@ -1,4 +1,7 @@
-from envirophat import motion
+#from envirophat import motion
+import requests
+import gpsd
+gpsd.connect()
 from math import acos
 from math import atan2
 from math import hypot
@@ -7,12 +10,12 @@ from math import sqrt
 from math import pi
 from math import degrees
 import time
-import serial
+#import serial
 
 carX = 1.0
 carY = 1.0
-destX = 2.0
-destY = 2.0
+destX = 43.30363
+destY = -84.688926667
 complete = 0
 
 #These angles will be clockwise from North
@@ -22,12 +25,22 @@ angleTarget = 0.0
 vectorX = destX - carX
 vectorY = destY - carY
 distance = hypot(vectorX, vectorY) * 111699
-motion.update()
 
 def findAngles():
-    carX = getCoordinateX()
-    carY = getCoordinateY()
-    angleCar = motion.heading()
+    global carX
+    global carY
+    global vectorX
+    global vectorY
+    global angleCar
+    global angleTarget
+    global complete
+    
+    posTuple = getPosition()
+    carX = posTuple[0]
+    carY = posTuple[1]
+    #angleCar = motion.heading()
+    angleCar = float(requests.get('http://10.1.1.2/').text)
+    print('car angle: ' + str(angleCar))
     vectorX = destX - carX
     vectorY = destY - carY
     if vectorX > 0:
@@ -51,13 +64,9 @@ def findAngles():
             complete = 1
 
 
-def getCoordinateX():
-    return 0
-    #insert code to receive Lora coordinates from other Pi.
-    
-def getCoordinateY():
-    return 0
-    #insert code to receive Lora coordinates from other Pi.
+def getPosition():
+    packet = gpsd.get_current()
+    return packet.position()
 
 #ser = serial.Serial("/dev/ttyACM0",9600)
 #ser.flushInput()
@@ -66,6 +75,7 @@ while complete == 0:
     
     findAngles()
     
+    print(angleTarget)
     if angleTarget - angleCar > 0:
         while fabs(angleTarget - angleCar) > 5:
             print("Rotating Right by " + fabs(angleTarget - angleCar) + " degrees.")
@@ -78,13 +88,14 @@ while complete == 0:
             #Implement left rotation code here
             #ser.write("left")
             findAngles()
-    carX = getCoordinateX()
-    carY = getCoordinateY()
+    posTuple = getPosition()
+    carX = posTuple[0]
+    carY = posTuple[1]
     vectorX = destX - carX
     vectorY = destY - carY
     distance = hypot(vectorX, vectorY) * 111699
     if distance > 0.5:
-        print("Moving Forward by " + distance + " meters.")
+        print("Moving Forward by " + str(distance) + " meters.")
         #Implement forward movement for small duration
         #ser.write("forward")
     else:
