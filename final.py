@@ -9,14 +9,19 @@ from math import fabs
 from math import sqrt
 from math import pi
 from math import degrees
+from math import sin
+from math import cos
+from math import radians
 import time
 #import serial
 
 carX = 1.0
 carY = 1.0
-destX = 43.30363
-destY = -84.688926667
+#(42.301383333, -83.699086667)
+destX = 42.301383333
+destY = -83.699086667
 complete = 0
+angleDelta = 0.0
 
 #These angles will be clockwise from North
 angleCar = 0.0
@@ -34,6 +39,7 @@ def findAngles():
     global angleCar
     global angleTarget
     global complete
+    global angleDelta
     
     posTuple = getPosition()
     carX = posTuple[0]
@@ -62,6 +68,7 @@ def findAngles():
             angleTarget = 180
         else:
             complete = 1
+    angleDelta = degrees(atan2(sin(radians(angleTarget)-radians(angleCar)), cos(radians(angleTarget)-radians(angleCar))))
 
 
 def getPosition():
@@ -75,27 +82,35 @@ while complete == 0:
     
     findAngles()
     
-    print(angleTarget)
-    if angleTarget - angleCar > 0:
-        while fabs(angleTarget - angleCar) > 5:
-            print("Rotating Right by " + fabs(angleTarget - angleCar) + " degrees.")
+    print("target angle: " + str(angleTarget))
+    if angleDelta>0:
+        #clockwise
+        while fabs(angleDelta) > 10:
+            print("Rotating Right by " + str(angleDelta) + " degrees.")
             #Implement right rotation code here
             #ser.write("right")
             findAngles()
-    elif angleTarget - angleCar < 0:
-        while fabs(angleTarget - angleCar) > 5:
-            print("Rotating Left by " + fabs(angleTarget-angleCar) + " degrees.")
+            print("target angle: " + str(angleTarget))
+            time.sleep(1)
+    else:
+        #counterclockwise
+        while fabs(angleDelta) > 10:
+            print("Rotating Left by " + str(angleDelta) + " degrees.")
             #Implement left rotation code here
             #ser.write("left")
             findAngles()
+            print("target angle: " + str(angleTarget))
+            time.sleep(1)
     posTuple = getPosition()
     carX = posTuple[0]
     carY = posTuple[1]
     vectorX = destX - carX
     vectorY = destY - carY
     distance = hypot(vectorX, vectorY) * 111699
-    if distance > 0.5:
+    print("distance from dest: " + str(distance))
+    if distance > 3:
         print("Moving Forward by " + str(distance) + " meters.")
+        time.sleep(1)
         #Implement forward movement for small duration
         #ser.write("forward")
     else:
