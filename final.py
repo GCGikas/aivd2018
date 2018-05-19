@@ -27,7 +27,6 @@ vectorY = destY - carY
 distance = hypot(vectorX, vectorY) * 111699
 
 def findAngles():
-<<<<<<< HEAD
     global carX
     global carY
     global vectorX
@@ -36,8 +35,6 @@ def findAngles():
     global angleTarget
     global complete
     
-=======
->>>>>>> 5ef1d036a89067d635a36dfb6ae35ba1448e4310
     posTuple = getPosition()
     carX = posTuple[0]
     carY = posTuple[1]
